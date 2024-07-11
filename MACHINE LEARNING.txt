@@ -1,0 +1,677 @@
+import pandas as pd
+import numpy as np
+import math
+import mathplotlib.pyplot as plt
+from sklearn import linear_model
+from word2number import w2n
+
+LINEAR REGRESSION:
+
+df= pd.read_csv(r"file name")
+df #(will give dataframe)
+plt.xlabel()
+plt.ylabel()
+plt.scatter(df.area,df.price)
+plt.show()
+reg = linear_model.LinearRegression()
+reg.fit(df[['area']],df.price) #trains the model here if there are multiple imdependednt values put df[['area','something etc']]
+#it can now predict price
+reg.predict([[33000]]) #predicts the value since y = mx+c
+reg.intercept_ #gives intercept 
+reg.coef_ #gives coefficient
+now we have the model ready
+
+d = pd.read_csv("another file")
+now we predict these values
+p = reg.predict(d)
+now we add to d
+
+d["prices"] = p
+this adds them
+
+d.to_csv("another file name.csv")
+stores in a csv with 1st column with index
+
+to remove index
+d.to_csv("another file name.csv",index=False)
+
+to see the prediction line 
+plt.plot(df.area,reg.predict(df[['area']]))
+
+df.columname = df.columname.fillna(value)
+
+sometimes you have to find median of the values and floor it to handle na values 
+math.floor(df.columname.median())
+
+you can import word2number to convert some words to numbers
+
+from word2number import w2n
+w2n.word_to_num(the string) #gives the number of it 
+
+
+
+GRADIENT DESCENT: 
+
+
+def gradient_desc(x,y):
+	m_curr = b_curr = 0
+	ite = 1000
+	n = len(x)
+	learn_rate = 0.001
+	for i in range(ite):
+		y_pred = m_curr*x+b_curr
+		cost = (1/n)*sum([val**2 for val in (y-y_pred)])
+		md = -(2/n)*sum(x*(y-y_pred))
+		bd = -(2/n)*sum((y-y_pred))
+		m_curr = m_curr - learn_rate*md
+		b_curr = b_curr - learn_rate*bd
+		print("m {}, b {}, iteration {} cost{}".format(m_curr,b_curr,i,cost))
+x = np.array([1,2,3,4,5])
+y = np.array([5,7,9,11,13])
+gradient_desc(x,y)
+
+
+it must decrease
+
+
+
+HOW TO SAVE A MODEL 
+
+import pickle
+with open('model_pick.txt','wb') as f:
+	pickle.dump(reg,f)
+now you can load the file in read mode to use it
+
+with open(r'C:file path','rb') as f: #ive saved in wow.txt
+	mp = pickle.load(f)
+
+now you can predict with this
+with open(r"C:\Users\shawn\Downloads\wow.txt",'rb') as f:
+    mp = pickle.load(f)
+
+mp.predict([[2020]])
+
+this gives same output as usual
+
+
+OTHER METHOD USING JOBLIB:
+
+import joblib
+joblib.dump(reg,r"C:\Users\shawn\Downloads\joblib.txt")
+
+you can call it again
+wow = joblib.load(r"C:\Users\shawn\Downloads\joblib.txt")
+wow.predict([[2020]])
+same output
+same functions as 1st program
+
+
+
+HOW TO HANDLE TEXT DATA
+
+do not make it like 1,2,3 it may try to find a correlation 
+they are categorical variables 
+
+nominal :
+no order or relations 
+
+ordinal:
+has some order to it
+
+use one hot encoding
+each category has a new column each
+assign 1 when it is its own category others become 0 these are the dummy variables.
+
+
+HOW TO USE DUMMY VARIABLES:
+
+df = pd.read_csv("file")
+df
+dummies = pd.get_dummies(df.column) #gives a no of columns with dummy variables
+now we can concatenate it to the original
+
+merged = pd.concat([df,dummies],axis='columns')
+now drop that column
+final = merged.drop(['column','one of the dummy columns'],axis='columns')
+
+md = linear_model.LinearRegression()
+now drop the dependent variable
+x = final.drop('dependent column',axis='columns')
+y = final.dependent column
+md.fit(x,y)
+#now use it to predict
+md.predict([[2800,0,1]]) #the 0 and 1 are the dummy variables
+
+#you can check how accurate it is using 
+md.score(x,y)
+
+
+
+HOW TO USE ONE HOT ENCODER:
+
+do label encoding
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+
+now make a new dataframe
+dfle = df
+
+dfle.labelcolumn = le.fit_transform(dfle.labelcolumn)
+#returns labels for all
+here to find fit anol
+x = dfle[['col1','col2']].values
+y = dfle.dependentcolumnname
+
+#now call one hot encoder
+from sklearn.preprocessing import OneHotEncoder
+ohe = OneHotEncoder(categorical_features=[0])
+x = ohe.fit_transform(x).toarray()
+
+drop one column to avoid dummy variable trap
+x = x[:,1:]
+md.fit(x,y)
+now predict 
+md.predict([[1,0,2800]])
+md.predict([[0,1,2800]])
+
+
+TRAIN TEST SPLIT METHOD:
+
+from sklearn.model_selection import train_test_split
+
+xtr,xte,ytr,yte = train_test_split(df[['Mileage','Age(yrs)']],df['Sell Price($)'],test_size=0.2)
+
+then do linear regression
+reg.fit(xtr,ytr)
+
+then predict using xte
+reg.predict(xte)
+
+
+IF IT IS A LOGISTIC TYPE DATA LIKE A YES OR NO:
+
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(xtr,yte)
+model.predict(xte)
+
+we can also predict the probability :
+
+model.predict_proba(xte)
+
+TO GROUP BY A PARTICULAR COLUMN:
+
+df.groupby('columnname').mean()
+
+
+TO PLOT BAR GRAPH:
+pd.crosstab(df.Department,df.left).plot(kind='bar')
+
+
+TO IDENTIFY HANDWRITTEN DIGITS:
+
+from sklearn.datasets import load_digits
+digit = load_digits()
+dir(digit) #this will give the following attribute ['DESCR', 'data', 'feature_names', 'frame', 'images', 'target', 'target_names']
+
+TO SHOW THE DIGIT :
+
+plt.gray()
+for i in range(5):
+    plt.matshow(digit.images[i])
+#we now get 5 images of handwritten 0 to 5
+
+digit.target[0:5]
+array([0, 1, 2, 3, 4])
+#gives an array saying what it is
+
+
+now to test and train the model
+
+call the test_train_split and do the following 
+
+xtr,xte,ytr,yte = test_train_split(digit.data,digit.target,test_size = 0.2)
+
+CALL THE LOGISTIC REGRESSION 
+
+reg.fit(xtr,ytr)
+
+to predict
+
+reg.predict([digit.data[i]])
+
+
+CONFUSION MATRIX:
+
+y_predicted = md.predict(xte)
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(yte,y_predicted)
+#now plot this using seaborn 
+
+import seaborn as dn
+plt.figure(figsize=(10,7))
+
+dn.heatmap(cm,annot=True)
+
+plt.xlabel("predicted")
+
+plt.ylabel("truth")
+
+plt.show()
+#shows a heat map showing how many times it gives the correct output (another way to check model accuracy)
+
+DECISION TREE:
+
+choose sample decision tree by checking for low entropy (less randomness) use high information gain split
+
+
+has multiple columns with labels
+
+
+input = independent df columns
+target = dependent column only 
+
+call label encoder
+
+col1obj = LabelEncoder()
+col2obj = LabelEncoder()
+col3obj = LabelEncoder()
+
+now fit_transform for each column  new columns for each col obj
+
+now input has the 3 extra columns
+
+now store only the df with just the encoded labels in another object
+input_n = input.drop(['company','job','degree'],axis = 'columns')
+
+now import tree 
+
+from sklearn import tree
+
+mod = tree.DecisionTreeClassifier()
+mod.fit(input_n,target)
+
+you can now predict if they have data or not
+
+
+Support Vector Machine:
+
+from sklearn.datasets import load_iris
+iris = load_iris()
+
+
+#has sepal petal data of 3 plants
+
+you can use pd.DataFrame(iris.data,columns=iris.feature_names)
+to create a DataFrame
+
+df['flower_name'] = df.target.apply(lambda x: iris.target_names[x])
+
+#to set labels to it if we want 
+
+
+x = df.drop(['target','flower_name'],axis='columns')
+#just size anol
+
+y = df.target
+#what flower it is
+
+use train_test_split 
+
+now to train using SVM
+
+from sklearn.svm import SVC
+model = SVC()  #you can also make it like this SVC(C=10) instead of c can also be lambda or kernel 
+model.fit(x,y)
+
+now you can predict  	
+
+
+
+RANDOM FOREST:
+
+get the dataframe and separate data and target valiues
+
+from sklearn.ensemble import RandomForestClassifier
+#since we use multiple decision trees 
+model = RandomForestClassifier(n_estimators=20)
+#n_estimator is used to specify number of trees used 
+model.fit(X_train, y_train)
+
+
+
+KFold CROSS VALIDATION:
+
+finds best way to train the model
+
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=3)
+
+example:
+for train_index,test_index in kf.split([1,2,3,4,5,6,7,8,9]):
+    print(train_index,test_index)
+
+    
+[3 4 5 6 7 8] [0 1 2]
+[0 1 2 6 7 8] [3 4 5]
+[0 1 2 3 4 5] [6 7 8]
+
+
+def get_score(mod,xtr,xte,ytr,yte):
+    mod.fit(xtr,ytr)
+    return mod.score(xte,yte)
+
+we can use StratifiedKFold too which divides them in a unified way
+
+similar to kfold
+
+create arrays for different models scores
+
+
+for train_index,test_index in kf.split(digit.data):
+    xtr,xte,ytr,yte = digit.data[train_index],digit.data[test_index].digit.target[train_index],digit.target[test_index]
+
+
+each time in this for loop find the score for the different models asked 
+
+INSTEAD OF DOING THIS WE CAN DO THE FOLLOWING :
+
+from sklearn.model_selection import cross_val_score
+cross_val_score(LogisticRegression(),digit.data,digit.target)
+
+
+K MEANS CLUSTER:
+
+from sklearn.cluster import KMeans
+km = KMeans(n_clusters=3)
+
+y_pred = km.fit_predict(df[['Age','Income($)']])
+y_pred
+array([1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
+#labels them which cluster it belongs to 
+
+
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+#use this to scale your values 
+
+df['Income($)'] = scaler.transform(df['Income($)'])
+
+
+then plot it 
+
+df1 = df[df.cluter==0]
+df2 = df[df.cluter==1]
+df3=df[df.cluter==2]
+
+
+plt.scatter(df1.Age,df1['Income($)'],color='green')
+plt.scatter(df2.Age,df2['Income($)'],color='red')
+plt.scatter(df3.Age,df3['Income($)'],color='black')
+plt.scatter(km.cluster_centers_[:,0],km.cluster_centers_[:,1],color='purple',marker='*',label='centroid')
+
+NAIVE BAYES CLASSIFIER:
+
+assume that everything is independent of each other
+
+open using pandas
+
+drop irrelevant data
+
+separate the target variable as usual
+
+use dummy variables or lableEncoder for labelled columns
+
+to check if there is a NA value 
+
+input.columns[input.isna().any()]
+
+now just do mean and use fillna
+
+use train_test_split
+
+from sklearn.naive_bayes import GaussianNB
+md = GaussianNB()
+
+then fit the model
+
+then you can predict 
+can compare with y test using confusion_matrix
+
+
+SPAM DETECTION:
+
+ham and spam you can use apply function
+
+df['spam'] = df['category'].apply(lambda x: 1 if x=='spam' else 0)
+
+
+#now we will use CounteVectorizer 
+
+from sklearn.feature_extraction.text import CountVectorizer
+v = CountVectorizer()
+x_tr_count = v.fit_transform(x_tr.values)
+x_tr_count.toarray() #gives all the counts of the unique characters 
+
+
+now you can use Multinomial Naive Bayes
+
+from sklearn.naive_bayes import MultinomialNB
+md = MultinomialNB()
+md.fit(x_tr_count,y_tr)
+
+here for checking score xtecount = v.transform(xte)
+
+
+you can do all of this using Pipeline
+
+from sklearn.pipeline import Pipeline
+
+cb = Pipeline([('vectorizer',CountVectorizer()),('nb',MultinomialNB))])
+
+now fit directuly with xtr,ytr
+cb.fit(xtr,ytr)
+
+
+GRIDSEARCHCV :
+
+a way to train the model using different values of certain paramreters
+
+from sklearn.model_selection import GridSearchCV #can also use RandomizedSearchCV
+clf = GridSearchCV(svm.SVC(gamma='auto'), {
+    'C': [1,10,20],
+    'kernel': ['rbf','linear']
+}, cv=5, return_train_score=False)
+clf.fit(iris.data, iris.target)
+
+clf.cv_results_ #gives results
+
+clf.best_params_ #gives the best parameters
+
+clf.best_score_ #gives the best score
+
+
+
+TO USE THIS FOR DIFFERENT MODELS:
+
+from sklearn import svm
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+
+model_params = {
+    'svm': {
+        'model': svm.SVC(gamma='auto'),
+        'params' : {
+            'C': [1,10,20],
+            'kernel': ['rbf','linear']
+        }  
+    },
+    'random_forest': {
+        'model': RandomForestClassifier(),
+        'params' : {
+            'n_estimators': [1,5,10]
+        }
+    },
+    'logistic_regression' : {
+        'model': LogisticRegression(solver='liblinear',multi_class='auto'),
+        'params': {
+            'C': [1,5,10]
+        }
+    }
+}
+scores = []
+
+for model_name, mp in model_params.items():
+    clf =  GridSearchCV(mp['model'], mp['params'], cv=5, return_train_score=False)
+    clf.fit(iris.data, iris.target)
+    scores.append({
+        'model': model_name,
+        'best_score': clf.best_score_,
+        'best_params': clf.best_params_
+    })
+    
+df = pd.DataFrame(scores,columns=['model','best_score','best_params'])
+df
+
+
+L1 andL2 REGULATION :
+
+adding a penalty factor to get a balanced fit
+
+l1 - abs values
+
+l2 - squared values
+
+IN DUMMY VARIABLE use parameter drop_first = True to avoid dummy trap
+
+now doing train test and score it on train and on test
+
+if it gives good score for train better than in test it has overfitting
+
+we can use LASSO: (L1)
+
+from sklearn import linear_model
+lasso_reg = linear_model.Lasso(alpha=50, max_iter=100, tol=0.1)
+lasso_reg.fit(train_X, train_y)
+
+OR WE CAN USE RIDGE: (L2)
+
+from sklearn.linear_model import Ridge
+ridge_reg= Ridge(alpha=50, max_iter=100, tol=0.1)
+ridge_reg.fit(train_X, train_y)
+
+
+
+KNN CLASSIFICATION:
+
+find value of k
+
+when you get a new data we can use this to find the closest k datapoints and choose the cluster with highest number of a certain class
+
+but if theres misclassification your k value is wrong 
+
+from sklearn.neighbors import KNeighborsClassifier
+knn = KNeighborsClassifier(n_neighbors=10)
+knn.fit(X_train, y_train)
+
+n_neighbours is the no of k
+
+
+
+
+
+from sklearn.metrics import classification_report
+
+print(classification_report(y_test, y_pred))
+
+
+
+#this gkives us a report of it
+
+
+
+PRINCIPAL COMPONENT ANALYSIS:
+
+has a parameter n_components = n
+
+tells it to get the n most important features
+
+
+from sklearn.decomposition import PCA
+
+pca = PCA(0.95) #retain 95% best useful data
+
+dfpca = pca.fit_transform(df)
+now dfpca has lesser no of columns
+
+pca.explained_variance_ratio 
+
+#tells us how much % of data is retained
+
+pca.n_components_ 
+
+#tells us how many columns we use
+
+
+BAGGING :
+
+from sklearn.ensemble import BaggingClassifier
+bagmod = BaggingClassifier(
+	base_estimator = DecisitonTreeClassifier()  #whar model,
+	n_estimators = 100 #numbeer of trees,
+	max_samples=0.8  #train size,
+	oob_score=True #out of bag score,
+random_state = 0
+
+)
+bagmod.fit(xtr,ytr)
+0bagmod.oob_score
+
+
+#to drop na values
+
+df.dropna()
+
+to get unique values
+
+df['columnname'].unique()
+
+how to drop individual records 
+
+df = df[~(condition)]
+
+
+
+IMAGE TRAINING:
+
+import cv2
+
+img = cv2.imread(r"path")
+plt.imshow(img)
+
+to make it grayscale:
+
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+
+plt.imshow(gray,cmap='gray')
+
+download haarcascade 
+
+these are pretrained classifiers used to detect features
+
+face_cas=cv2.CascadeClassifer(PATH OF FACE DETECTOR)
+faces = face_cas.detectMultiScale(gray,1.3,5)
+#returns  4 values
+
+1st 2 are c,y values
+next 2 are the distances
+
+copy paste from OpenCV
+
+
+synopsis of project 
+
+what to do 
+what modules to use
+
+till exception handling   https://www.tutorialspoint.com/sap_abap/index.htm

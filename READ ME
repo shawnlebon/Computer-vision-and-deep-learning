@@ -1,0 +1,6 @@
+some problems i faced:
+
+the mixed fruit dataset in it barely had 25 images which skewed the accuracy of the models so remove that class for best accuracy.
+add data augmentation in the CNN model which will give you 95% accuracy and a higher f1 score
+make sure to ignore the xml files since the model wasnt able to accept it as a valid file type
+do not run the epoch cell too many times cause it could decrease the accuracy sometimes, or at least thats what happened for me 
